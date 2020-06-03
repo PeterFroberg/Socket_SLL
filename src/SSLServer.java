@@ -18,11 +18,11 @@ public class SSLServer implements Runnable {
 
     private final static Object lock = new Object();
 
-    private final Socket clientSocket;
+    private final SSLSocket clientSocket;
     //private String clientName;
     private LinkedBlockingQueue<String> clientMessageQueue;
 
-    private SSLServer(Socket clientSocket, LinkedBlockingQueue<String> clientMessageQueue, CopyOnWriteArrayList<LinkedBlockingQueue<String>> clientMessageQueues) {
+    private SSLServer(SSLSocket clientSocket, LinkedBlockingQueue<String> clientMessageQueue, CopyOnWriteArrayList<LinkedBlockingQueue<String>> clientMessageQueues) {
         this.clientSocket = clientSocket;
         this.clientMessageQueue = clientMessageQueue;
         SSLServer.clientMessageQueues = clientMessageQueues;
@@ -48,6 +48,7 @@ public class SSLServer implements Runnable {
         try {
             socketWriter = new PrintWriter(clientSocket.getOutputStream(), true);
             PrintWriter finalSocketwriter = socketWriter;
+            finalSocketwriter.println("TEst");
             /**
              * Creates a new thread that sends new messages to the client
              */
@@ -58,8 +59,9 @@ public class SSLServer implements Runnable {
                         /**
                          * wait for a new message to arrive in the clients messagequeue and the send it to the client
                          */
+                        System.out.println("Stop");
                         mess = clientMessageQueue.take();
-                        //System.out.println("skickar till client in thread " + Thread.currentThread().getName() + " : " + mess);
+                        System.out.println("skickar till client in thread " + Thread.currentThread().getName() + " : " + mess);
                         finalSocketwriter.println(mess);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -70,7 +72,7 @@ public class SSLServer implements Runnable {
             socketReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             String threadInfo = "(" + Thread.currentThread().getName() + ")";
             String inputLine = socketReader.readLine();
-            //System.out.println("Received: \"" + inputLine + "\" from" + remoteSocketAddress + threadInfo);
+            System.out.println("Received: \"" + inputLine + "\" from" + remoteSocketAddress + threadInfo);
 
             String clientName = inputLine;
 
@@ -215,7 +217,7 @@ public class SSLServer implements Runnable {
 
             /////////////////////////////////////
 
-            System.setProperty("jdk.tls.server.protocols", "TLSv1.3");
+            System.setProperty("jdk.tls.server.protocols", "TLSv1.2");
             sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
 
             sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(port);

@@ -79,12 +79,25 @@ public class SSLClient implements Runnable {
             /**
              * connects to the server on address:host and port:port
              */
+            /////////////////////////////
+            System.setProperty("javax.net.ssl.trustStore","./keystore");
+            System.setProperty("javax.net.ssl.trustStorePassword", "password");
+
+
+            /////////////////////////////
+
+
+
             System.setProperty("jdk.tls.server.protocols", "TLSv1.2");
             sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 
             sslSocket = (SSLSocket) sslSocketFactory.createSocket(host, port);
             sslSocket.setNeedClientAuth(false);
-            sslSocket.setEnabledProtocols(new String[]{"TLSv1.2"});
+            sslSocket.setEnabledProtocols(new String[]{"TLSv1", "TLSv1.1", "TLSv1.2", "SSLv3"});
+
+            sslSocket.setKeepAlive(true);
+            sslSocket.setUseClientMode(true);
+            sslSocket.startHandshake();
 
             String[] chiperSuites = sslSocket.getEnabledCipherSuites();
             String[] updatedChiperSuits = new String[chiperSuites.length + 1];
